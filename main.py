@@ -110,8 +110,8 @@ def main():
     parser.add_argument('path', type=str)
     args = parser.parse_args()
     year = str(args.year)
-    long = str(args.long)
-    lat = str(args.lat)
+    long = args.long
+    lat = args.lat
     path = args.path
     coord = (long, lat)
     data = read_file(path, year)
@@ -120,4 +120,15 @@ def main():
     create_map(points, coord)
     return 'Map has been created'
 
+def test():
+    year = '2012'
+    long = 49.83826
+    lat = 24.02324
+    path = r'C:\Users\Andrea\Programing_Basics_2022\test.list'
+    coord = (long, lat)
+    data = read_file(path, year)
+    loc = location(data, year)
+    points = find_nearest(loc, coord)
+    create_map(points, coord)
+#print(test())
 print(main())
