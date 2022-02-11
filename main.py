@@ -6,8 +6,10 @@ from geopy.geocoders import Nominatim
 from geopy.extra.rate_limiter import RateLimiter
 from haversine import haversine
 
-
 def read_file(path, year_search):
+    '''
+    Reads file and compiles data into dictionary
+    '''
     with open(path, mode='r') as file:
         num = 0
         data = {}
@@ -40,10 +42,14 @@ def read_file(path, year_search):
                 data[year] = {}
                 data[year][name] = [city]
     return data
-#print(read_file(r'C:\Users\Andrea\Programing_Basics_2022\locations.list', '2006'))
 
 def location(locations, year):
-    '''{'2006': {'#1 Single': 'New York City', '#15SecondScare': 'West Hills'}}'''
+    '''
+    Finds coordinates of given locations
+    Example of outcome:
+    {'#1 Single': [(34.0536909, -118.242766), (40.7127281, -74.0060152)],
+    '#15SecondScare': [(52.4081812, -1.510477), (40.8212755, -73.43679367645896)]}
+    '''
     data = locations[year]
     geolocator = Nominatim(user_agent="main.py")
     for name in data.keys():
@@ -51,12 +57,12 @@ def location(locations, year):
             location = geolocator.geocode(data[name][idx])
             data[name][idx] = (location.latitude, location.longitude)
     return data
-#print(location(read_file(r'C:\Users\Andrea\Programing_Basics_2022\test.list', '2006'), '2006'))
-
 
 def find_nearest(data, location):
-    '''{'#1 Single': [(34.0536909, -118.242766), (40.7127281, -74.0060152)],
-    '#15SecondScare': [(52.4081812, -1.510477), (40.8212755, -73.43679367645896)]}'''
+    '''
+    Calculates the destance from starting coordinates
+    and finds 10 nearest points
+    '''
     data_copy = copy.deepcopy(data)
     res = []
     coord = {}
@@ -68,7 +74,6 @@ def find_nearest(data, location):
         coord[names] = data[names][index]
         data_copy[names] = min(temp)
         data[names] = (min(temp))
-
     lst = []
     for _ in range(9):
         if len(data_copy) == 0:
@@ -80,10 +85,10 @@ def find_nearest(data, location):
         lst.append((item,coord[item]))
     return lst
 
-#print(find_nearest(location(read_file(r'C:\Users\Andrea\Programing_Basics_2022\test.list', '2006'), '2006'), (49.817545, 24.023932)))
-
 def create_map(data, coord):
-    '''[('#15SecondScare', (52.4081812, -1.510477)), ('#1 Single', (40.7127281, -74.0060152))]'''
+    '''
+    Creates map
+    '''
     map = folium.Map(tiles="Stamen Terrain",
     location=coord,
     zoom_start=17)
@@ -99,10 +104,11 @@ def create_map(data, coord):
     map.add_child(layer3)
     map.add_child(folium.LayerControl())
     map.save('My_Map.html')
-#print(create_map(find_nearest(location(read_file(r'C:\Users\Andrea\Programing_Basics_2022\test.list', '2013'), '2013'), (37.09274132456057, -118.93703484204748)), (37.09274132456057, -118.93703484204748)))
 
 def main():
-    '''python main.py 2000 49.83826 24.02324 path_to_dataset'''
+    '''
+    Main fuction, calls every other function
+    '''
     parser = argparse.ArgumentParser()
     parser.add_argument('year', type=int)
     parser.add_argument('long', type=float)
@@ -121,6 +127,9 @@ def main():
     return 'Map has been created'
 
 def test():
+    '''
+    Test function, for entering every value manually
+    '''
     year = '2012'
     long = 49.83826
     lat = 24.02324
@@ -130,5 +139,6 @@ def test():
     loc = location(data, year)
     points = find_nearest(loc, coord)
     create_map(points, coord)
-#print(test())
-print(main())
+
+if __name__ == '__main__':
+    print(main())
